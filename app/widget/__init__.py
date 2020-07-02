@@ -4,7 +4,7 @@ from .schema import WidgetSchema  # noqa
 BASE_ROUTE = "widget"
 
 
-def register_routes(api, app, root="api"):
-    from .controller import api as widget_api
+def register_routes(app, root="api"):
+    from .controller import router as widget_router
 
-    api.add_namespace(widget_api, path=f"/{root}/{BASE_ROUTE}")
+    app.include_router(widget_router, prefix=f"/{root}/{BASE_ROUTE}")

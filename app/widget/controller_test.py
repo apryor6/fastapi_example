@@ -27,15 +27,11 @@ class TestWidgetResource:
     def test_get(self, client: FlaskClient):  # noqa
         with client:
             results = client.get(f"/api/{BASE_ROUTE}", follow_redirects=True).get_json()
-            expected = (
-                WidgetSchema(many=True)
-                .dump(
-                    [
-                        make_widget(123, name="Test Widget 1"),
-                        make_widget(456, name="Test Widget 2"),
-                    ]
-                )
-                
+            expected = WidgetSchema(many=True).dump(
+                [
+                    make_widget(123, name="Test Widget 1"),
+                    make_widget(456, name="Test Widget 2"),
+                ]
             )
             for r in results:
                 assert r in expected
@@ -48,10 +44,8 @@ class TestWidgetResource:
 
             payload = dict(name="Test widget", purpose="Test purpose")
             result = client.post(f"/api/{BASE_ROUTE}/", json=payload).get_json()
-            expected = (
-                WidgetSchema()
-                .dump(Widget(name=payload["name"], purpose=payload["purpose"]))
-                
+            expected = WidgetSchema().dump(
+                Widget(name=payload["name"], purpose=payload["purpose"])
             )
             assert result == expected
 
@@ -64,14 +58,14 @@ def fake_update(widget: Widget, changes: WidgetInterface) -> Widget:
     return updated_Widget
 
 
-class TestWidgetIdResource:
+class Testwidget_idResource:
     @patch.object(WidgetService, "get_by_id", lambda id: make_widget(id=id))
     def test_get(self, client: FlaskClient):  # noqa
         with client:
             result = client.get(f"/api/{BASE_ROUTE}/123").get_json()
             expected = make_widget(id=123)
             print(f"result = ", result)
-            assert result["widgetId"] == expected.widget_id
+            assert result["widget_id"] == expected.widget_id
 
     @patch.object(WidgetService, "delete_by_id", lambda id: id)
     def test_delete(self, client: FlaskClient):  # noqa
@@ -88,9 +82,7 @@ class TestWidgetIdResource:
                 f"/api/{BASE_ROUTE}/123",
                 json={"name": "New Widget", "purpose": "New purpose"},
             ).get_json()
-            expected = (
-                WidgetSchema()
-                .dump(Widget(widget_id=123, name="New Widget", purpose="New purpose"))
-                
+            expected = WidgetSchema().dump(
+                Widget(widget_id=123, name="New Widget", purpose="New purpose")
             )
             assert result == expected

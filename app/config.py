@@ -1,48 +1,54 @@
 import os
 from typing import List, Type
 
+from pydantic import BaseSettings
+
 basedir = os.path.abspath(os.path.dirname(__file__))
 
 
-class BaseConfig:
-    CONFIG_NAME = "base"
-    USE_MOCK_EQUIVALENCY = False
-    DEBUG = False
-    SQLALCHEMY_TRACK_MODIFICATIONS = False
+class Settings(BaseSettings):
+    CONFIG_NAME: str = "base"
+    USE_MOCK_EQUIVALENCY: bool = False
+    DEBUG: bool = False
+    SQLALCHEMY_TRACK_MODIFICATIONS: bool = False
 
 
-class DevelopmentConfig(BaseConfig):
-    CONFIG_NAME = "dev"
-    SECRET_KEY = os.getenv(
+class DevelopmentConfig(Settings):
+    CONFIG_NAME: str = "dev"
+    SECRET_KEY: str = os.getenv(
         "DEV_SECRET_KEY", "You can't see California without Marlon Widgeto's eyes"
     )
-    DEBUG = True
-    SQLALCHEMY_TRACK_MODIFICATIONS = False
-    TESTING = False
-    SQLALCHEMY_DATABASE_URI = "sqlite:///{0}/app-dev.db".format(basedir)
+    DEBUG: bool = True
+    SQLALCHEMY_TRACK_MODIFICATIONS: bool = False
+    TESTING: bool = False
+    SQLALCHEMY_DATABASE_URL: str = "sqlite:///{0}/app-dev.db".format(basedir)
 
 
-class TestingConfig(BaseConfig):
-    CONFIG_NAME = "test"
-    SECRET_KEY = os.getenv("TEST_SECRET_KEY", "Thanos did nothing wrong")
-    DEBUG = True
-    SQLALCHEMY_TRACK_MODIFICATIONS = False
-    TESTING = True
-    SQLALCHEMY_DATABASE_URI = "sqlite:///{0}/app-test.db".format(basedir)
+class TestingConfig(Settings):
+    CONFIG_NAME: str = "test"
+    SECRET_KEY: str = os.getenv("TEST_SECRET_KEY", "Thanos did nothing wrong")
+    DEBUG: bool = True
+    SQLALCHEMY_TRACK_MODIFICATIONS: bool = False
+    TESTING: bool = True
+    SQLALCHEMY_DATABASE_URL: str = "sqlite:///{0}/app-test.db".format(basedir)
 
 
-class ProductionConfig(BaseConfig):
-    CONFIG_NAME = "prod"
-    SECRET_KEY = os.getenv("PROD_SECRET_KEY", "I'm Ron Burgundy?")
-    DEBUG = False
-    SQLALCHEMY_TRACK_MODIFICATIONS = False
-    TESTING = False
-    SQLALCHEMY_DATABASE_URI = "sqlite:///{0}/app-prod.db".format(basedir)
+class ProductionConfig(Settings):
+    CONFIG_NAME: str = "prod"
+    SECRET_KEY: str = os.getenv("PROD_SECRET_KEY", "I'm Ron Burgundy?")
+    DEBUG: bool = False
+    SQLALCHEMY_TRACK_MODIFICATIONS: bool = False
+    TESTING: bool = False
+    SQLALCHEMY_DATABASE_URL: str = "sqlite:///{0}/app-prod.db".format(basedir)
 
 
-EXPORT_CONFIGS: List[Type[BaseConfig]] = [
+def get_config():
+    return config_by_name[os.environ["ENV"]]
+
+
+EXPORT_CONFIGS: List[Type[Settings]] = [
     DevelopmentConfig,
     TestingConfig,
     ProductionConfig,
 ]
-config_by_name = {cfg.CONFIG_NAME: cfg for cfg in EXPORT_CONFIGS}
+config_by_name = {cfg().CONFIG_NAME: cfg() for cfg in EXPORT_CONFIGS}

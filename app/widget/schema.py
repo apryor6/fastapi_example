@@ -1,9 +1,11 @@
-from marshmallow import fields, Schema
+from typing import Optional
+
+from app.base import CamelModel
 
 
-class WidgetSchema(Schema):
+class WidgetSchema(CamelModel):
     """Widget schema"""
 
-    widgetId = fields.Number(attribute="widget_id")
-    name = fields.String(attribute="name")
-    purpose = fields.String(attribute="purpose")
+    widget_id: Optional[int]
+    name: str
+    purpose: str

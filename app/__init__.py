@@ -1,23 +1,28 @@
-from flask import Flask, jsonify
-from flask_sqlalchemy import SQLAlchemy
-from flask_restx import Api
+import os
 
-db = SQLAlchemy()
+from fastapi import FastAPI
+
+from .config import get_config
+from .routes import register_routes
+
+settings = get_config()
 
 
-def create_app(env=None):
-    from app.config import config_by_name
-    from app.routes import register_routes
+app = FastAPI(title="Fasterific API")
+# app.config.from_object(config_by_name[env or "test"])
 
-    app = Flask(__name__)
-    app.config.from_object(config_by_name[env or "test"])
-    api = Api(app, title="Flaskerific API", version="0.1.0")
+register_routes(app)
+# db.init_app(app)
 
-    register_routes(api, app)
-    db.init_app(app)
+print(settings)
 
-    @app.route("/health")
-    def health():
-        return jsonify("healthy")
 
-    return app
+@app.get("/")
+def index():
+    return settings.CONFIG_NAME
+
+
+@app.get("/health")
+def health():
+    return {"status": "healthy"}
+

@@ -1,9 +1,10 @@
 from sqlalchemy import Integer, Column, String
-from app import db  # noqa
-from .interface import WidgetInterface
+from app.db import Base
+
+from .schema import WidgetSchema
 
 
-class Widget(db.Model):  # type: ignore
+class Widget(Base):  # type: ignore
     """A snazzy Widget"""
 
     __tablename__ = "widget"
@@ -12,7 +13,7 @@ class Widget(db.Model):  # type: ignore
     name = Column(String(255))
     purpose = Column(String(255))
 
-    def update(self, changes: WidgetInterface):
-        for key, val in changes.items():
+    def update(self, changes: WidgetSchema):
+        for key, val in changes.dict().items():
             setattr(self, key, val)
         return self

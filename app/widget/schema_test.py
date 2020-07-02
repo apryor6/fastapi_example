@@ -16,7 +16,7 @@ def test_WidgetSchema_create(schema: WidgetSchema):
 
 def test_WidgetSchema_works(schema: WidgetSchema):
     params: WidgetInterface = schema.load(
-        {"widgetId": "123", "name": "Test widget", "purpose": "Test purpose"}
+        {"widget_id": "123", "name": "Test widget", "purpose": "Test purpose"}
     )
     widget = Widget(**params)
 

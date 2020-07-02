@@ -27,7 +27,7 @@ to get the dependencies.
 Next, initialize the database
 
 ```
-python manage.py seed_db
+invoke seed-db
 ```
 
 Type "Y" to accept the message (which is just there to prevent you accidentally deleting things -- it's just a local SQLite database)
