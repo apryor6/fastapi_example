@@ -5,7 +5,7 @@ from invoke import task
 from app.widget.model import Widget
 
 from app.db import get_db, Base, engine
-from app import app
+from wsgi import app
 
 
 @task

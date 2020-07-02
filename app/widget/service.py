@@ -20,9 +20,9 @@ class WidgetService:
 
     @staticmethod
     async def update(
-        widget: Widget, Widget_change_updates: WidgetSchema, session: Session,
+        widget: Widget, updates: WidgetSchema, session: Session,
     ) -> WidgetSchema:
-        widget.update(Widget_change_updates)
+        widget.update(updates)
         session.commit()
         session.refresh(widget)
         return widget

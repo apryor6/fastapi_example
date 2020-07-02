@@ -2,6 +2,7 @@ import pytest
 
 from app import create_app
 from app.db import Base
+from fastapi.testclient import TestClient
 
 
 @pytest.fixture
@@ -11,7 +12,8 @@ def app():
 
 @pytest.fixture
 def client(app):
-    return app.test_client()
+    client = TestClient(app)
+    return client
 
 
 @pytest.fixture

@@ -1,4 +1,5 @@
 .idea/
+**/*.db
 *.pyc
 py3/
 data/
