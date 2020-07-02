@@ -10,10 +10,10 @@ from .model import Widget
 router = APIRouter()
 
 
-@router.get("/")
+@router.get("/", response_model=List[WidgetSchema])
 async def get_widget(session: Session = Depends(get_db)) -> List[Widget]:
     """Get all Widgets"""
-    return WidgetService.get_all(session)
+    return await WidgetService.get_all(session)
 
 
 @router.post(
@@ -23,34 +23,27 @@ async def post_widget(
     widget: WidgetSchema, session: Session = Depends(get_db),
 ) -> WidgetSchema:
     """Create a new Widget"""
-    print(f"widget = {widget}")
-    print("Posting a widget")
-    resp = WidgetService.create(widget, session)
-    print(resp)
-    return resp
-    # return WidgetService.create(widget, session)
+    return await WidgetService.create(widget, session)
 
 
-# @router.route("/<int:widget_id>")
-# class widget_idResource(Resource):
-#     @responds(schema=WidgetSchema)
-#     def get(self, widget_id: int) -> Widget:
-#         """Get Single Widget"""
+@router.get("/<int:widget_id>", response_model=WidgetSchema)
+async def get_widget_by_id(
+    widget_id: int, session: Session = Depends(get_db)
+) -> Widget:
+    """Get Single Widget"""
 
-#         return WidgetService.get_by_id(widget_id)
+    return await WidgetService.get_by_id(widget_id, session)
 
-#     def delete(self, widget_id: int) -> Response:
-#         """Delete Single Widget"""
-#         from flask import jsonify
 
-#         id = WidgetService.delete_by_id(widget_id)
-#         return jsonify(dict(status="Success", id=id))
+@router.delete("/<int:widget_id>")
+async def delete(widget_id: int, session: Session = Depends(get_db)):
+    """Delete Single Widget"""
+    _id = await WidgetService.delete_by_id(widget_id, session)
+    return dict(status="Success", id=_id)
 
-#     @accepts(schema=WidgetSchema, api=api)
-#     @responds(schema=WidgetSchema)
-#     def put(self, widget_id: int) -> Widget:
-#         """Update Single Widget"""
 
-#         changes: WidgetInterface = request.parsed_obj
-#         Widget = WidgetService.get_by_id(widget_id)
-#         return WidgetService.update(Widget, changes)
+@router.put("/<int:widget_id>")
+async def put(widget: WidgetSchema, session: Session = Depends(get_db)) -> WidgetSchema:
+    """Update Single Widget"""
+    cur_widget = session.query(Widget).get(widget.widget_id)
+    return await WidgetService.update(cur_widget, widget, session)
