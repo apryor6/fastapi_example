@@ -10,12 +10,8 @@ def create_app(config="dev"):
     settings = get_config(config=config)
 
     app = FastAPI(title="Fasterific API")
-    # app.config.from_object(config_by_name[env or "test"])
 
     register_routes(app)
-    # db.init_app(app)
-
-    print(settings)
 
     @app.get("/")
     def index():
