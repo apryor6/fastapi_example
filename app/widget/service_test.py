@@ -1,60 +1,71 @@
-from flask_sqlalchemy import SQLAlchemy
 from typing import List
-from app.test.fixtures import app, db  # noqa
+
+import pytest
+
+from app.test.fixtures import app, session  # noqa
+from app.db import Session
 from .model import Widget
 from .service import WidgetService  # noqa
-from .interface import WidgetInterface
+from .schema import WidgetSchema
 
 
-def test_get_all(db: SQLAlchemy):  # noqa
-    yin: Widget = Widget(widget_id=1, name="Yin", purpose="thing 1")
-    yang: Widget = Widget(widget_id=2, name="Yang", purpose="thing 2")
-    db.session.add(yin)
-    db.session.add(yang)
-    db.session.commit()
+@pytest.mark.asyncio
+async def test_get_all(session: Session):  # noqa
+    yin: WidgetSchema = WidgetSchema(widget_id=1, name="Yin", purpose="thing 1")
+    yang: WidgetSchema = WidgetSchema(widget_id=2, name="Yang", purpose="thing 2")
+    session.add(Widget(**yin.dict()))
+    session.add(Widget(**yang.dict()))
+    session.commit()
 
-    results: List[Widget] = WidgetService.get_all()
+    results: List[WidgetSchema] = await WidgetService.get_all(session)
 
     assert len(results) == 2
     assert yin in results and yang in results
 
 
-def test_update(db: SQLAlchemy):  # noqa
-    yin: Widget = Widget(widget_id=1, name="Yin", purpose="thing 1")
+@pytest.mark.asyncio
+async def test_update(session: Session):  # noqa
+    yin: WidgetSchema = WidgetSchema(widget_id=1, name="Yin", purpose="thing 1")
+    yin_orm = Widget(**yin.dict())
+    session.add(yin_orm)
+    updates: WidgetSchema = WidgetSchema(
+        widget_id=1, name="New Widget name", purpose="thing 1"
+    )
 
-    db.session.add(yin)
-    db.session.commit()
-    updates: WidgetInterface = dict(name="New Widget name")
-
-    WidgetService.update(yin, updates)
-
-    result: Widget = Widget.query.get(yin.widget_id)
+    await WidgetService.update(yin_orm, updates, session)
+    result: WidgetSchema = session.query(Widget).get(yin.widget_id)
     assert result.name == "New Widget name"
 
 
-def test_delete_by_id(db: SQLAlchemy):  # noqa
-    yin: Widget = Widget(widget_id=1, name="Yin", purpose="thing 1")
-    yang: Widget = Widget(widget_id=2, name="Yang", purpose="thing 2")
-    db.session.add(yin)
-    db.session.add(yang)
-    db.session.commit()
+@pytest.mark.asyncio
+async def test_delete_by_id(session: Session):  # noqa
+    yin: WidgetSchema = WidgetSchema(widget_id=1, name="Yin", purpose="thing 1")
+    yang: WidgetSchema = WidgetSchema(widget_id=2, name="Yang", purpose="thing 2")
 
-    WidgetService.delete_by_id(1)
-    db.session.commit()
+    yin_orm = Widget(**yin.dict())
+    yang_orm = Widget(**yang.dict())
 
-    results: List[Widget] = Widget.query.all()
+    session.add(yin_orm)
+    session.add(yang_orm)
+    session.commit()
 
-    assert len(results) == 1
-    assert yin not in results and yang in results
+    await WidgetService.delete_by_id(1, session)
+    session.commit()
 
-
-def test_create(db: SQLAlchemy):  # noqa
-
-    yin: WidgetInterface = dict(name="Fancy new widget", purpose="Fancy new purpose")
-    WidgetService.create(yin)
-    results: List[Widget] = Widget.query.all()
+    results: List[Widget] = session.query(Widget).all()
 
     assert len(results) == 1
+    assert yin_orm not in results and yang_orm in results
 
-    for k in yin.keys():
-        assert getattr(results[0], k) == yin[k]
+
+@pytest.mark.asyncio
+async def test_create(session: Session):  # noqa
+
+    yin: WidgetSchema = WidgetSchema(widget_id=1, name="Yin", purpose="thing 1")
+    await WidgetService.create(yin, session)
+    results: List[Widget] = session.query(Widget).all()
+
+    assert len(results) == 1
+
+    for k in yin.dict().keys():
+        assert getattr(results[0], k) == getattr(yin, k)

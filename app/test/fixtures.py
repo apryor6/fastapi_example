@@ -1,6 +1,7 @@
 import pytest
 
 from app import create_app
+from app.db import Base
 
 
 @pytest.fixture
@@ -14,12 +15,12 @@ def client(app):
 
 
 @pytest.fixture
-def db(app):
-    from app import db
+def session(app):
+    from app.db import get_db
 
-    with app.app_context():
-        db.drop_all()
-        db.create_all()
-        yield db
-        db.drop_all()
-        db.session.commit()
+    session = next(get_db())
+    Base.metadata.drop_all()
+    Base.metadata.create_all()
+    yield session
+    Base.metadata.drop_all()
+    session.commit()

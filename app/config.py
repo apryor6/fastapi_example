@@ -42,8 +42,8 @@ class ProductionConfig(Settings):
     SQLALCHEMY_DATABASE_URL: str = "sqlite:///{0}/app-prod.db".format(basedir)
 
 
-def get_config():
-    return config_by_name[os.environ["ENV"]]
+def get_config(config):
+    return config_by_name[config]
 
 
 EXPORT_CONFIGS: List[Type[Settings]] = [
