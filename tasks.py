@@ -3,6 +3,7 @@ import os
 from invoke import task
 
 from app.widget.model import Widget
+from app.fizz.model import Fizz
 
 from app.db import get_db, Base, engine
 from wsgi import app
@@ -25,8 +26,7 @@ def drop_all(ctx):
 
 
 def seed_things():
-    # classes = [Widget, Fizzbaz, Fizzbar, Doodad, Whatsit]
-    classes = [Widget]
+    classes = [Widget, Fizz]
     for klass in classes:
         seed_thing(klass)
 
