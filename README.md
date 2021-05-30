@@ -35,10 +35,11 @@ Type "Y" to accept the message (which is just there to prevent you accidentally 
 Finally run the app with
 
 ```
-python wsgi.py
+uvicorn wsgi.py
 ```
 
-Navigate to the posted URL in your terminal to be greeted with Swagger, where you can test out the API.
+Navigate to http://127.0.0.1:8000/docs to be greeted with Swagger,
+where you can test out the API.
 
 
 
@@ -50,5 +51,11 @@ To run the test suite, simply pip install it and run from the root directory lik
 ```
 pip install pytest
 pytest
+```
+
+## Running via docker-compose
+```
+docker-compose up
+
 ```
 
